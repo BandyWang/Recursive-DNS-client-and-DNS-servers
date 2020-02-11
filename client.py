@@ -26,26 +26,36 @@ def populate_queries():
         fp.close()
 
 
-def establish_connection_to_rs(hostname, port):
+def establish_connection(hostname, port):
     try:
-        rs_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     except socket.error as err:
         exit()
 
     localhost_addr = socket.gethostbyname(hostname)
     server_binding = (localhost_addr, port)
     rs_conn.connect(server_binding)
-    return rs_conn
+    return conn
+
 
 
 def perform_queries(rs_conn):
     for query in QUERIES:
         rs_conn.sendall(query.encode())
-        reply = rs_conn.recv(2048).split(" ")
-        if reply[1] == 'A':
-            OUTPUT_FILE.write(query + " " + reply[0] + " " + 'A\n')
+        rs_reply = rs_conn.recv(2048).split(" ")
+        if rs_reply[1] == 'A':
+            OUTPUT_FILE.write(query + " " + rs_reply[0] + " " + 'A\n')
         else:
-            OUTPUT_FILE.write("Query goes to ts.py to be searched [not written yet]\n")
+            ts_address = rs_reply[0]
+            ts_conn = establish_connection(ts_address,tsListenPort)
+            ts_conn.sendall(query.encode())
+            ts_reply = rs_conn.recv(2048).split(" ")
+            if len(ts_reply) == 2:
+                OUTPUT_FILE.write(query + " " + ts_reply[0] + " " + 'A\n')
+            else:
+                OUTPUT_FILE.write(query + " - Error:HOST NOT FOUND")
+            ts_conn.close()
+
 
     rs_conn.close()
 
@@ -57,6 +67,6 @@ if __name__ == "__main__":
         tsListenPort = int(sys.argv[3])
 
         populate_queries()
-        rs_conn = establish_connection_to_rs(rsHostName, rsListenPort)
+        rs_conn = establish_connection(rsHostName, rsListenPort)
         perform_queries(rs_conn)
         OUTPUT_FILE.close()
