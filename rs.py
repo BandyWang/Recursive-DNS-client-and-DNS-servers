@@ -39,17 +39,26 @@ def establish_server_and_serve(rsListenPort):
         exit()
     server_binding = ('', rsListenPort)
     ss.bind(server_binding)
-    ss.listen(1)
-    csockid, addr = ss.accept()
     while True:
-        msg = csockid.recv(2048).decode()
-        if msg:
-            if msg in DNS_TABLE:
-                reply = DNS_TABLE[msg][0] + " " + DNS_TABLE[msg][1]
-                csockid.send(reply)
-            else:
-                reply = DNS_TABLE['NS'][0] + " " + DNS_TABLE['NS'][1]
-                csockid.send(reply)
+        print("[RS] Now listening...")
+        ss.listen(1)
+        csockid, addr = ss.accept()
+        print("[RS] Connected to client {}!".format(addr));
+        while True:
+            msg = csockid.recv(2048).decode()
+            print("[RS] Recieved from client the following message: " + msg)
+            if msg:
+                if msg == "END THIS CONNECTION":
+                    break;
+                if msg in DNS_TABLE:
+                    reply = DNS_TABLE[msg][0] + " " + DNS_TABLE[msg][1]
+                    print("[RS] Replying to client with: " + reply)
+                    csockid.send(reply)
+                else:
+                    reply = DNS_TABLE['NS'][0] + " " + DNS_TABLE['NS'][1]
+                    print("[RS] Replying to client with: " + reply)
+                    csockid.send(reply)
+        print("[RS] Disconnected with client {}!".format(addr))
 
 
 if __name__ == "__main__":
