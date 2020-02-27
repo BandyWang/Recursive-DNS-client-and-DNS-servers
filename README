@@ -1,0 +1,22 @@
+0. Please write down the full names and netids of both your team members.
+    Bandy Wang (bw307) and WeiJi Zheng (wz232)
+
+1. Briefly discuss how you implemented your recursive client functionality.
+    I first establish the RS and TS servers. From the client, for each query from PROJI-HNS.txt, the program will first
+    send the query to the RS server. If the query is found in the RS server, the RS server will reply back with the
+    query's ip address and the client will write in RESOLVED.txt. Otherwise if not found in the RS server, the RS server
+    will reply to the client the ip address of the TS server. The client will then esablish a connection with the TS
+    server and send the query there. The TS server will reply back with withever the query is found in it's server and
+    the result is written in RESOLVED.txt.
+
+2. Are there known issues or functions that aren't working currently in your
+attached code? If so, explain.
+    There are no known issues.
+
+3. What problems did you face developing code for this project?
+   There was not any big problems we faced, Only minor typos and bugs.
+
+4. What did you learn by working on this project?
+    We learned how to establish connections between client and servers as well as a basic idea of how a DNS system
+    operates.
+
